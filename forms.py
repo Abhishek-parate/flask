@@ -11,9 +11,11 @@ class RegisterForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    color = StringField('Favorite Color', validators=[DataRequired()])
+    color = StringField('Favorite Color (Hex Code)', validators=[DataRequired(), Length(min=3, max=7)])
     submit = SubmitField('Register')
 
 class OTPForm(FlaskForm):
     otp = StringField('Enter OTP', validators=[DataRequired(), Length(min=6, max=6)])
     submit = SubmitField('Verify OTP')
+
+

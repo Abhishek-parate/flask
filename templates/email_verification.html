@@ -1,26 +1,26 @@
-    {% extends "base.html" %}
-    {% block content %}
-    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 class="text-2xl font-bold mb-6">Email Verification</h2>
+{% extends "base.html" %}
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+    <h2 class="text-2xl font-bold mb-6">Email Verification</h2>
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul class="mb-4">
-                    {% for category, message in messages %}
-                        <li class="text-sm text-white bg-red-500 p-2 rounded">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-        
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700" for="otp">{{ form.otp.label }}</label>
-                {{ form.otp(class="w-full border p-2 rounded") }}
-            </div>
-            <button type="submit" class="bg-purple-500 text-white py-2 px-4 rounded w-full">Verify Email</button>
-        </form>
-    </div>
-    {% endblock %}
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="mb-4">
+                {% for category, message in messages %}
+                    <li class="text-sm text-white bg-red-500 p-2 rounded">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700" for="otp">{{ form.otp.label }}</label>
+            {{ form.otp(class="w-full border p-2 rounded") }}
+        </div>
+        <button type="submit" class="bg-purple-500 text-white py-2 px-4 rounded w-full">Verify Email</button>
+    </form>
+</div>
+{% endblock %}
