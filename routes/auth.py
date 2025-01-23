@@ -44,9 +44,24 @@ def register():
 
         # Send OTP Email
         otp = pyotp.TOTP(otp_secret).now()
+        
+        html_content = f"""
+        <html>
+        <body>
+            <h2>Your OTP for Registration</h2>
+            <p>Thank you for registering with us. Please use the OTP below to verify your email address:</p>
+            <h3 style="color: #4CAF50; font-size: 24px;">{otp}</h3>
+            <p>This OTP will expire in 30 seconds. If you did not request this, please ignore this message.</p>
+            <br>
+            <p>Best Regards,<br>3 Way Auth</p>
+        </body>
+        </html>
+        """
+        
         try:
             msg = Message('Email Verification OTP', recipients=[form.email.data])
-            msg.body = f"Your OTP for registration is: {otp}"
+            msg.body = f"Your OTP for registration is: {otp}"  # Plain text body as a fallback
+            msg.html = html_content  # HTML body for email
             mail.send(msg)
             flash('Registration successful! Verify your email using the OTP sent.', 'info')
         except Exception as e:
@@ -62,7 +77,7 @@ def register():
 @auth_bp.route('/email_verification', methods=['GET', 'POST'])
 def email_verification():
     form = OTPForm()
-    
+
     # Get email from session
     email = session.get('email')  # Retrieve email from session
     if not email:
@@ -83,11 +98,10 @@ def email_verification():
         # Debugging Logs for OTP generation and user input
         print(f"Generated OTP: {generated_otp}")  # Log generated OTP
         print(f"Entered OTP: {otp}")  # Log entered OTP
-        print(f"Current Time: {datetime.now()}")  # Correct datetime usage
-        print(f"OTP Expiry Time: {totp.timecode(datetime.now())}")  # Correct timecode usage
+        print(f"OTP Secret: {user.otp_secret}")  # Check if the secret is the same
 
-        # Validate OTP
-        if totp.verify(otp):
+        # Check if the generated OTP matches the entered OTP
+        if generated_otp == otp:
             # OTP verified successfully, mark user as verified
             user.is_verified = True
             db.session.commit()
@@ -104,7 +118,7 @@ def email_verification():
             flash('Email verified successfully. Please log in.', 'success')
             return redirect(url_for('auth.login'))
         else:
-            flash('Invalid OTP. Please try again.', 'danger')
+            flash(f'Invalid OTP. Please try again. Generated OTP: {generated_otp}', 'danger')
 
     return render_template('email_verification.html', form=form)
 
