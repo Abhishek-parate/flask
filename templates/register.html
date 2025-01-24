@@ -5,7 +5,7 @@
     <h2 class="text-2xl font-bold mb-6">Register</h2>
     <form method="POST">
         {{ form.hidden_tag() }}
-        
+
         <div class="mb-4">
             {{ form.email.label }}
             {{ form.email(class="w-full border p-2 rounded") }}
@@ -48,31 +48,28 @@
             {% endif %}
         </div>
 
-        <!-- Color Palette -->
+        <!-- Color Selector -->
         <div class="mb-4">
             {{ form.color.label }}
-            <div class="mt-2">
-                <!-- Color Palette -->
-                <div class="grid grid-cols-4 gap-2">
-                    <!-- Each color swatch -->
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #FF5733;" onclick="selectColor('#FF5733')"></div>
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #33FF57;" onclick="selectColor('#33FF57')"></div>
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #3357FF;" onclick="selectColor('#3357FF')"></div>
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #FF33A1;" onclick="selectColor('#FF33A1')"></div>
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #33A1FF;" onclick="selectColor('#33A1FF')"></div>
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #FFD700;" onclick="selectColor('#FFD700')"></div>
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #FFC0CB;" onclick="selectColor('#FFC0CB')"></div>
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #800080;" onclick="selectColor('#800080')"></div>
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #00FF00;" onclick="selectColor('#00FF00')"></div>
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #00FFFF;" onclick="selectColor('#00FFFF')"></div>
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #FFD700;" onclick="selectColor('#FFD700')"></div>
-                    <div class="color-swatch w-10 h-10 rounded-full cursor-pointer" style="background-color: #FF4500;" onclick="selectColor('#FF4500')"></div>
-                </div>
+            <div class="flex items-center gap-3 mt-2">
+                <input 
+                    id="color-input" 
+                    name="color" 
+                    type="color" 
+                    class="w-10 h-10 border-0 p-0 cursor-pointer" 
+                    value="{{ form.color.data or '#FFFFFF' }}" 
+                />
+                <input 
+                    id="color-hex" 
+                    name="color-hex" 
+                    type="text" 
+                    class="w-full p-2 rounded border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all" 
+                    placeholder="Selected Color" 
+                    value="{{ form.color.data or '#FFFFFF' }}" 
+                    readonly 
+                />
             </div>
-            
-            <!-- Input Field for Hex Code -->
-            <input id="color-input" name="color" type="text" class="w-full p-2 mt-2 rounded border" placeholder="Enter or select a hex color code" value="{{ form.color.data }}" />
-            
+
             {% if form.color.errors %}
                 <div class="mt-2 text-sm text-red-600 bg-red-100 border-l-4 border-red-500 p-2 rounded">
                     <ul>
@@ -88,12 +85,15 @@
     </form>
 </div>
 
-<!-- JavaScript for Color Selection -->
 <script>
-    function selectColor(color) {
-        // Update the input field with the selected color's hex value
-        document.getElementById('color-input').value = color;
-    }
-</script>
+    // Sync Color Selector with Hex Input
+    document.addEventListener('DOMContentLoaded', () => {
+        const colorInput = document.getElementById('color-input');
+        const colorHex = document.getElementById('color-hex');
 
+        colorInput.addEventListener('input', () => {
+            colorHex.value = colorInput.value;
+        });
+    });
+</script>
 {% endblock %}

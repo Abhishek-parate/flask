@@ -4,9 +4,7 @@ from forms import RegisterForm, OTPForm, LoginForm
 from flask_bcrypt import Bcrypt
 import pyotp, random, string
 from flask_mail import Mail, Message
-from datetime import datetime, timedelta  # Added timedelta for OTP expiry
-
-import time
+from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
 bcrypt = Bcrypt()
@@ -15,6 +13,24 @@ mail = Mail()
 # Helper: Generate Random Recovery Key
 def generate_recovery_key():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=12))
+
+# Helper: Send Email
+def send_email(subject, recipient, body, html=None):
+    try:
+        msg = Message(subject, recipients=[recipient])
+        msg.body = body
+        if html:
+            msg.html = html
+        mail.send(msg)
+        return True
+    except Exception as e:
+        flash(f'Error sending email: {str(e)}', 'danger')
+        return False
+
+# Helper: Generate OTP
+def generate_otp(secret):
+    totp = pyotp.TOTP(secret)
+    return totp.now()
 
 # Registration Route
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -26,7 +42,7 @@ def register():
             flash('Email already registered. Please log in.', 'warning')
             return redirect(url_for('auth.login'))
 
-        # Create a new user (unverified)
+        # Create a new user
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         recovery_key = generate_recovery_key()
         otp_secret = pyotp.random_base32()
@@ -43,8 +59,7 @@ def register():
         db.session.commit()
 
         # Send OTP Email
-        otp = pyotp.TOTP(otp_secret).now()
-        
+        otp = generate_otp(otp_secret)
         html_content = f"""
         <html>
         <body>
@@ -57,19 +72,12 @@ def register():
         </body>
         </html>
         """
-        
-        try:
-            msg = Message('Email Verification OTP', recipients=[form.email.data])
-            msg.body = f"Your OTP for registration is: {otp}"  # Plain text body as a fallback
-            msg.html = html_content  # HTML body for email
-            mail.send(msg)
-            flash('Registration successful! Verify your email using the OTP sent.', 'info')
-        except Exception as e:
-            flash(f'Error sending email. Please try again later. Error: {str(e)}', 'danger')
+        if not send_email('Email Verification OTP', form.email.data, f"Your OTP is: {otp}", html_content):
             return redirect(url_for('auth.register'))
 
-        # Save email in session for verification
+        # Save email in session
         session['email'] = form.email.data
+        flash('Registration successful! Verify your email using the OTP sent.', 'info')
         return redirect(url_for('auth.email_verification'))
     return render_template('register.html', form=form)
 
@@ -79,12 +87,11 @@ def email_verification():
     form = OTPForm()
 
     # Get email from session
-    email = session.get('email')  # Retrieve email from session
+    email = session.get('email')
     if not email:
         flash('Session expired. Please register again.', 'danger')
         return redirect(url_for('auth.register'))
 
-    # Get user object from the database using the email
     user = User.query.filter_by(email=email).first()
     if not user:
         flash('User not found. Please register again.', 'danger')
@@ -92,17 +99,10 @@ def email_verification():
 
     if form.validate_on_submit():
         totp = pyotp.TOTP(user.otp_secret)
-        otp = form.otp.data.strip()  # Remove any leading/trailing spaces
-        generated_otp = totp.now()
-
-        # Debugging Logs for OTP generation and user input
-        print(f"Generated OTP: {generated_otp}")  # Log generated OTP
-        print(f"Entered OTP: {otp}")  # Log entered OTP
-        print(f"OTP Secret: {user.otp_secret}")  # Check if the secret is the same
-
-        # Check if the generated OTP matches the entered OTP
-        if generated_otp == otp:
-            # OTP verified successfully, mark user as verified
+        otp = form.otp.data.strip()
+        
+        # Validate OTP with a time window
+        if totp.verify(otp, valid_window=1):  # Adjusted for time window
             user.is_verified = True
             db.session.commit()
 
@@ -118,7 +118,8 @@ def email_verification():
             flash('Email verified successfully. Please log in.', 'success')
             return redirect(url_for('auth.login'))
         else:
-            flash(f'Invalid OTP. Please try again. Generated OTP: {generated_otp}', 'danger')
+            flash('Invalid or expired OTP. Please try again.', 'danger')
+            print(f"Entered OTP: {otp}, Generated OTP: {totp.now()}, Secret: {user.otp_secret}")
 
     return render_template('email_verification.html', form=form)
 
@@ -134,6 +135,6 @@ def login():
                 return redirect(url_for('auth.email_verification'))
             session['email'] = user.email
             flash('Login successful!', 'success')
-            return redirect(url_for('dashboard.dashboard'))  # Redirecting to dashboard after successful login
-        flash('Invalid credentials', 'danger')
+            return redirect(url_for('dashboard.dashboard'))
+        flash('Invalid credentials.', 'danger')
     return render_template('login.html', form=form)
