@@ -1,23 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Flask Auth System</title>
-</head>
-<body class="bg-gray-100 h-screen flex justify-center items-center">
-    {% block content %}
-    
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <ul>
-            {% for category, message in messages %}
-                <li class="alert alert-{{ category }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
-
-    {% endblock %}
-</body>
+  </head>
+  <body class="bg-gray-100 h-screen flex justify-center items-center">
+    {% block content %} {% with messages =
+    get_flashed_messages(with_categories=true) %} {% if messages %}
+    <ul>
+      {% for category, message in messages %}
+      <li class="alert alert-{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %} {% endblock %}
+  </body>
 </html>

@@ -1,13 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-    <h2 class="text-2xl font-bold mb-6">Login</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="mb-4">{{ form.email.label }} {{ form.email(class="w-full border p-2 rounded") }}</div>
-        <div class="mb-4">{{ form.password.label }} {{ form.password(class="w-full border p-2 rounded") }}</div>
-        <button class="bg-green-500 text-white py-2 px-4 rounded w-full">Login</button>
-    </form>
-    <p class="mt-4">Don't have an account? <a href="{{ url_for('auth.register') }}" class="text-blue-500">Register here</a></p>
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-semibold text-center mb-6">Login</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="mb-4">
+                {{ form.email.label(class="block text-sm font-medium text-gray-700") }} 
+                {{ form.email(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") }}
+            </div>
+            <div class="mb-4">
+                {{ form.password.label(class="block text-sm font-medium text-gray-700") }} 
+                {{ form.password(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") }}
+            </div>
+            <button type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Login</button>
+        </form>
+        <p class="mt-4 text-center text-sm">
+            Don't have an account? <a href="{{ url_for('auth.register') }}" class="text-indigo-600 hover:text-indigo-800">Register here</a>
+        </p>
+    </div>
 </div>
 {% endblock %}

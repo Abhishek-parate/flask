@@ -1,12 +1,14 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, session
+from flask import Blueprint, render_template, redirect,request, url_for, flash, session
 from models import db, User
-from forms import RegisterForm, OTPForm, LoginForm
+from forms import RegisterForm, OTPForm, LoginForm, SelectColorForm
 from flask_bcrypt import Bcrypt
 import pyotp, random, string
 from flask_mail import Mail, Message
 from datetime import datetime
+import logging
 
-auth_bp = Blueprint('auth', __name__)
+
+auth_bp = Blueprint('auth', __name__)  # Blueprint
 bcrypt = Bcrypt()
 mail = Mail()
 
@@ -37,12 +39,10 @@ def generate_otp(secret):
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        # Check if email already exists
         if User.query.filter_by(email=form.email.data).first():
             flash('Email already registered. Please log in.', 'warning')
             return redirect(url_for('auth.login'))
 
-        # Create a new user
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         recovery_key = generate_recovery_key()
         otp_secret = pyotp.random_base32()
@@ -58,7 +58,6 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        # Send OTP Email
         otp = generate_otp(otp_secret)
         html_content = f"""
         <html>
@@ -75,7 +74,6 @@ def register():
         if not send_email('Email Verification OTP', form.email.data, f"Your OTP is: {otp}", html_content):
             return redirect(url_for('auth.register'))
 
-        # Save email in session
         session['email'] = form.email.data
         flash('Registration successful! Verify your email using the OTP sent.', 'info')
         return redirect(url_for('auth.email_verification'))
@@ -85,8 +83,6 @@ def register():
 @auth_bp.route('/email_verification', methods=['GET', 'POST'])
 def email_verification():
     form = OTPForm()
-
-    # Get email from session
     email = session.get('email')
     if not email:
         flash('Session expired. Please register again.', 'danger')
@@ -100,13 +96,11 @@ def email_verification():
     if form.validate_on_submit():
         totp = pyotp.TOTP(user.otp_secret)
         otp = form.otp.data.strip()
-        
-        # Validate OTP with a time window
-        if totp.verify(otp, valid_window=1):  # Adjusted for time window
+
+        if totp.verify(otp, valid_window=1):
             user.is_verified = True
             db.session.commit()
 
-            # Send Recovery Key Email
             try:
                 msg = Message('Account Recovery Key', recipients=[user.email])
                 msg.body = f"Your recovery key is: {user.recovery_key}"
@@ -119,22 +113,103 @@ def email_verification():
             return redirect(url_for('auth.login'))
         else:
             flash('Invalid or expired OTP. Please try again.', 'danger')
-            print(f"Entered OTP: {otp}, Generated OTP: {totp.now()}, Secret: {user.otp_secret}")
 
     return render_template('email_verification.html', form=form)
 
-# Login Route
+# Login Route (using `auth_bp.route`)
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            if not user.is_verified:
-                flash('Please verify your email first.', 'warning')
-                return redirect(url_for('auth.email_verification'))
-            session['email'] = user.email
-            flash('Login successful!', 'success')
-            return redirect(url_for('dashboard.dashboard'))
-        flash('Invalid credentials.', 'danger')
+        email = form.email.data
+        password = form.password.data
+
+        user = User.query.filter_by(email=email).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            session['user_id'] = user.id
+            return redirect(url_for('auth.select_color'))
+        else:
+            flash('Invalid email or password', 'danger')
+
     return render_template('login.html', form=form)
+
+
+@auth_bp.route('/select-color', methods=['GET', 'POST'])
+def select_color():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please log in first.", "warning")
+        return redirect(url_for('auth.login'))
+
+    form = SelectColorForm()
+
+    if form.validate_on_submit():
+        selected_color = form.color.data.strip()
+        user = User.query.get(user_id)
+
+        if user and selected_color.lower() == user.color.lower():
+            try:
+                # Generate OTP
+                totp = pyotp.TOTP(user.otp_secret)
+                otp = totp.now()
+
+                # Send OTP email
+                subject = "Your OTP for Color Verification"
+                body = f"Your OTP is: {otp}"
+                html_content = f"""
+                <html>
+                <body>
+                    <h2>Your OTP for Color Verification</h2>
+                    <p>You selected the correct color. Please use the OTP below to verify your identity:</p>
+                    <h3 style="color: #4CAF50; font-size: 24px;">{otp}</h3>
+                    <p>This OTP will expire in 5 minutes. If you did not request this, please ignore this message.</p>
+                    <br>
+                    <p>Best Regards,<br>3 Way Auth</p>
+                </body>
+                </html>
+                """
+                if send_email(subject, user.email, body, html_content):
+                    flash('Color selected successfully! Please check your email for the OTP.', 'info')
+                    return redirect(url_for('auth.verify_otp'))
+                else:
+                    flash('Error sending OTP email. Please try again later.', 'danger')
+            except Exception as e:
+                logging.error(f"Error during OTP generation or email sending for user {user.email}: {str(e)}")
+                flash("An error occurred while generating or sending the OTP. Please try again.", "danger")
+        else:
+            flash('Incorrect color selection. Please try again.', 'danger')
+
+    return render_template('select_color.html', form=form)
+
+
+@auth_bp.route('/verify-otp', methods=['GET', 'POST'])
+def verify_otp():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please log in first.", "warning")
+        return redirect(url_for('auth.login'))
+
+    form = OTPForm()
+    user = User.query.get(user_id)
+    
+    if not user:
+        flash("User not found. Please log in again.", "danger")
+        session.pop('user_id', None)
+        return redirect(url_for('auth.login'))
+
+    if form.validate_on_submit():
+        entered_otp = form.otp.data.strip()
+
+        # Use pyotp to verify OTP
+        totp = pyotp.TOTP(user.otp_secret)
+        if totp.verify(entered_otp, valid_window=1):  # Allow a slight time window
+            # Clear session data and log the user in
+            session.pop('user_id', None)
+            session['email'] = user.email  # Store user email for dashboard access
+            
+            flash('Login successful!', 'success')
+            return redirect(url_for('dashboard.dashboard'))  # Redirect to the dashboard route
+        else:
+            flash('Invalid or expired OTP. Please try again.', 'danger')
+
+    return render_template('verify_otp.html', form=form)

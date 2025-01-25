@@ -33,3 +33,8 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
     submit = SubmitField('Login')
+
+
+class SelectColorForm(FlaskForm):
+    color = StringField('Favorite Color (Hex Code)', validators=[DataRequired(), Length(min=3, max=7), Regexp(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$', message='Please enter a valid hex color code.')])
+    submit = SubmitField('Submit')

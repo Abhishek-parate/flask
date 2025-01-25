@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+    <h2 class="text-2xl font-semibold text-center mb-6">
+      Select Your Favorite Color
+    </h2>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Choose Color:</label>
+        <input
+          id="color-input" 
+          type="color"
+          name="color"
+          value="{{ form.color.data or '#FFFFFF' }}"
+          class="w-12 h-12 border-none p-0 cursor-pointer"
+        />
+      </div>
+      
+      <div class="mb-4">
+        <input
+          id="color-hex"
+          name="color-hex"
+          type="text"
+          class="w-full p-2 rounded border border-gray-300"
+          value="{{ form.color.data or '#FFFFFF' }}"
+          readonly
+        />
+      </div>
+
+      {% if form.color.errors %}
+      <div class="mt-2 text-sm text-red-600 bg-red-100 border-l-4 border-red-500 p-2 rounded">
+        <ul>
+          {% for error in form.color.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+  
+      <button
+        type="submit"
+        class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        Continue
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Sync Color Selector with Hex Input
+  document.addEventListener("DOMContentLoaded", () => {
+    const colorInput = document.getElementById("color-input");
+    const colorHex = document.getElementById("color-hex");
+
+    colorInput.addEventListener("input", () => {
+      colorHex.value = colorInput.value;
+    });
+  });
+</script>
+{% endblock %}
