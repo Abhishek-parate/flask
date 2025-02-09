@@ -10,3 +10,4 @@ class User(db.Model):
     otp_secret = db.Column(db.String(32))
     recovery_key = db.Column(db.String(50), nullable=False)
     is_verified = db.Column(db.Boolean, default=False)
+    login_count = db.Column(db.Integer, default=0)  # Track login count

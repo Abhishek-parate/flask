@@ -1,23 +1,74 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 class="text-2xl font-semibold text-center mb-6">Login</h2>
-        <form method="POST">
+<div class="flex items-center justify-center min-h-screen bg-gray-100 px-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Login</h2>
+
+        {% if form.errors %}
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-4 rounded-lg">
+            <strong>Error:</strong> Please check the form for errors.
+        </div>
+        {% endif %}
+
+        <form method="POST" class="space-y-4">
             {{ form.hidden_tag() }}
-            <div class="mb-4">
-                {{ form.email.label(class="block text-sm font-medium text-gray-700") }} 
-                {{ form.email(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") }}
+
+            <div>
+                {{ form.email.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.email(class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") }}
+                {% if form.email.errors %}
+                <span class="text-sm text-red-600 font-medium">{{ form.email.errors[0] }}</span>
+                {% endif %}
             </div>
-            <div class="mb-4">
-                {{ form.password.label(class="block text-sm font-medium text-gray-700") }} 
-                {{ form.password(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") }}
+
+            <div class="relative">
+                {{ form.password.label(class="block text-sm font-medium text-gray-700") }}
+                <div class="relative">
+                    {{ form.password(class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10") }}
+                    <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-3 flex items-center text-gray-500">
+                        <svg id="eyeIcon" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+                        </svg>
+                    </button>
+                </div>
+                {% if form.password.errors %}
+                <span class="text-sm text-red-600 font-medium">{{ form.password.errors[0] }}</span>
+                {% endif %}
             </div>
-            <button type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Login</button>
+
+            <button type="submit" class="w-full py-3 text-lg bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200">
+                Login
+            </button>
         </form>
-        <p class="mt-4 text-center text-sm">
-            Don't have an account? <a href="{{ url_for('auth.register') }}" class="text-indigo-600 hover:text-indigo-800">Register here</a>
-        </p>
+
+        <div class="mt-4 text-center text-sm text-gray-600">
+            <p>
+                Forgot your password? 
+                <a href="{{ url_for('auth.forgot_password') }}" class="text-indigo-600 hover:underline">Recover Account</a>
+            </p>
+        </div>
+
+        <div class="mt-6">
+            <a href="{{ url_for('auth.register') }}"
+               class="w-full block text-center py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 transition duration-200">
+                Register New Account
+            </a>
+        </div>
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        let passwordField = document.querySelector('[name="password"]');
+        let eyeIcon = document.getElementById('eyeIcon');
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 01-6 0"/>'
+        } else {
+            passwordField.type = "password";
+            eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>'
+        }
+    }
+</script>
 {% endblock %}

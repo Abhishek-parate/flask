@@ -1,10 +1,61 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="bg-white p-8 rounded-lg shadow-lg max-w-3xl w-full">
-    <h2 class="text-2xl font-bold mb-6">Welcome to Your Dashboard</h2>
-    <p class="text-lg">You are now successfully logged in and verified!</p>
-    <div class="mt-6">
-        <a href="{{ url_for('dashboard.logout') }}" class="bg-red-500 text-white py-2 px-4 rounded">Logout</a>  <!-- Correct 'logout' route reference -->
+<div class="flex h-screen bg-gray-100">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-blue-600 text-white flex flex-col p-4 fixed h-full">
+        <h2 class="text-2xl font-bold mb-6">Admin Panel</h2>
+        <ul class="space-y-4">
+            <li><a href="#" class="block px-4 py-2 bg-blue-700 rounded">Dashboard</a></li>
+            <li><a href="#" class="block px-4 py-2 hover:bg-blue-700 rounded">Users</a></li>
+            <li><a href="#" class="block px-4 py-2 hover:bg-blue-700 rounded">Settings</a></li>
+            <li><a href="{{ url_for('dashboard.logout') }}" class="block px-4 py-2 bg-red-500 text-white rounded mt-6">Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 ml-64 p-8">
+        <!-- Navbar -->
+        <nav class="bg-white shadow-md p-4 flex justify-between items-center w-full">
+            <h2 class="text-2xl font-semibold">Dashboard</h2>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-600">Welcome, Admin</span>
+                <a href="{{ url_for('dashboard.logout') }}" class="bg-red-500 text-white px-4 py-2 rounded">Logout</a>
+            </div>
+        </nav>
+
+        <!-- User Management Table -->
+        <div class="bg-white p-6 rounded-lg shadow-lg mt-6">
+            <h3 class="text-xl font-semibold mb-4">User Management</h3>
+            
+            <!-- Add User Button -->
+            <div class="mb-4 flex justify-end">
+                <a href="#" class="bg-blue-500 text-white px-4 py-2 rounded shadow">Add User</a>
+            </div>
+
+            <table class="w-full text-left border-collapse border border-gray-300">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="border border-gray-300 px-4 py-2">ID</th>
+                        <th class="border border-gray-300 px-4 py-2">Email</th>
+                        <th class="border border-gray-300 px-4 py-2">Favorite Color</th>
+                        <th class="border border-gray-300 px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td class="border border-gray-300 px-4 py-2">{{ u.id }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ u.email }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ u.color }}</td>
+                        <td class="border border-gray-300 px-4 py-2 space-x-2">
+                            <a href="#" class="bg-yellow-500 text-white px-3 py-1 rounded">Edit</a>
+                            <a href="#" class="bg-red-500 text-white px-3 py-1 rounded">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

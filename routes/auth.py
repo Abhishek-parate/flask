@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect,request, url_for, flash, session
 from models import db, User
-from forms import RegisterForm, OTPForm, LoginForm, SelectColorForm
+from forms import RegisterForm, OTPForm, LoginForm, SelectColorForm,ResetPasswordForm,ForgotPasswordForm
 from flask_bcrypt import Bcrypt
 import pyotp, random, string
 from flask_mail import Mail, Message
@@ -213,3 +213,57 @@ def verify_otp():
             flash('Invalid or expired OTP. Please try again.', 'danger')
 
     return render_template('verify_otp.html', form=form)
+
+
+# Forgot Password Route
+@auth_bp.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+
+        if not user:
+            flash("No account found with this email.", "danger")
+            return redirect(url_for('auth.forgot_password'))
+
+        if user.recovery_key != form.recovery_key.data:
+            flash("Invalid recovery key.", "danger")
+            return redirect(url_for('auth.forgot_password'))
+
+        # Store user ID in session for password reset
+        session['reset_user_id'] = user.id
+        flash("Recovery key verified! You can now reset your password.", "success")
+        return redirect(url_for('auth.reset_password'))
+
+    return render_template('forgot_password.html', form=form)
+
+
+# Reset Password Route
+@auth_bp.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    if 'reset_user_id' not in session:
+        flash("Session expired or invalid request.", "danger")
+        return redirect(url_for('auth.forgot_password'))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.get(session['reset_user_id'])
+        if not user:
+            flash("User not found.", "danger")
+            return redirect(url_for('auth.forgot_password'))
+
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+
+        session.pop('reset_user_id', None)  # Clear session
+        flash("Password reset successfully! You can now log in.", "success")
+        return redirect(url_for('auth.login'))
+
+    return render_template('reset_password.html', form=form)
+
+
+@auth_bp.route('/', methods=['GET'])
+def home():
+
+    return render_template('index.html')

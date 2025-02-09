@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>All Users</h2>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Email</th>
+        <th>Color</th>
+        <th>Verified</th>
+        <th>Actions</th>
+    </tr>
+    {% for user in users %}
+    <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.color }}</td>
+        <td>{{ "Yes" if user.is_verified else "No" }}</td>
+        <td>
+            <a href="{{ url_for('dashboard.edit_user', id=user.id) }}">Edit</a> |
+            <form action="{{ url_for('dashboard.delete_user', id=user.id) }}" method="post" style="display:inline;">
+                <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

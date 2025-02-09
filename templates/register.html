@@ -1,100 +1,113 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-    <h2 class="text-2xl font-bold mb-6">Register</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
+<div class="flex items-center justify-center min-h-screen bg-gray-100 px-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Register</h2>
+        
+        <form method="POST" class="space-y-4">
+            {{ form.hidden_tag() }}
 
-        <div class="mb-4">
-            {{ form.email.label }}
-            {{ form.email(class="w-full border p-2 rounded") }}
-            {% if form.email.errors %}
-                <div class="mt-2 text-sm text-red-600 bg-red-100 border-l-4 border-red-500 p-2 rounded">
-                    <ul>
-                        {% for error in form.email.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="mb-4">
-            {{ form.password.label }}
-            {{ form.password(class="w-full border p-2 rounded") }}
-            {% if form.password.errors %}
-                <div class="mt-2 text-sm text-red-600 bg-red-100 border-l-4 border-red-500 p-2 rounded">
-                    <ul>
-                        {% for error in form.password.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="mb-4">
-            {{ form.confirm_password.label }}
-            {{ form.confirm_password(class="w-full border p-2 rounded") }}
-            {% if form.confirm_password.errors %}
-                <div class="mt-2 text-sm text-red-600 bg-red-100 border-l-4 border-red-500 p-2 rounded">
-                    <ul>
-                        {% for error in form.confirm_password.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- Color Selector -->
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700"
-            >Choose Color:</label>
-            <div class="flex items-center gap-3 mt-2">
-                <input 
-                    id="color-input" 
-                    name="color" 
-                    type="color" 
-                    class="w-10 h-10 border-0 p-0 cursor-pointer" 
-                    value="{{ form.color.data or '#FFFFFF' }}" 
-                />
-                <input 
-                    id="color-hex" 
-                    name="color-hex" 
-                    type="text" 
-                    class="w-full p-2 rounded border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all" 
-                    placeholder="Selected Color" 
-                    value="{{ form.color.data or '#FFFFFF' }}" 
-                    readonly 
-                />
+            <div>
+                {{ form.email.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.email(class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") }}
+                {% if form.email.errors %}
+                    <div class="mt-2 text-sm text-red-600 bg-red-100 border-l-4 border-red-500 p-2 rounded">
+                        <ul>
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
             </div>
 
-            {% if form.color.errors %}
-                <div class="mt-2 text-sm text-red-600 bg-red-100 border-l-4 border-red-500 p-2 rounded">
-                    <ul>
-                        {% for error in form.color.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
+            <!-- Password Field with Show/Hide Feature -->
+            <div class="relative">
+                {{ form.password.label(class="block text-sm font-medium text-gray-700") }}
+                <div class="relative">
+                    {{ form.password(class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10", id="password") }}
+                    <button type="button" onclick="togglePassword('password', 'toggle-password-icon')" class="absolute inset-y-0 right-2 flex items-center px-2">
+                        <svg id="toggle-password-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 hover:text-gray-700 transition" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 4a6 6 0 0 1 6 6h-2a4 4 0 0 0-8 0H4a6 6 0 0 1 6-6zm-1 6a1 1 0 1 1 2 0 1 1 0 0 1-2 0zm-5.46-1.1a8 8 0 0 1 12.92 0 1 1 0 1 1-1.68 1.1A6 6 0 0 0 4.78 9a1 1 0 0 1-1.24-.1zm13.92 1.1a1 1 0 1 1-1.68-1.1 8 8 0 0 1 1.68 1.1z" />
+                        </svg>
+                    </button>
                 </div>
-            {% endif %}
-        </div>
+                {% if form.password.errors %}
+                    <div class="mt-2 text-sm text-red-600 bg-red-100 border-l-4 border-red-500 p-2 rounded">
+                        <ul>
+                            {% for error in form.password.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
 
-        <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Register</button>
-    </form>
+            <!-- Confirm Password Field with Show/Hide Feature -->
+            <div class="relative">
+                {{ form.confirm_password.label(class="block text-sm font-medium text-gray-700") }}
+                <div class="relative">
+                    {{ form.confirm_password(class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10", id="confirm-password") }}
+                    <button type="button" onclick="togglePassword('confirm-password', 'toggle-confirm-password-icon')" class="absolute inset-y-0 right-2 flex items-center px-2">
+                        <svg id="toggle-confirm-password-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 hover:text-gray-700 transition" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 4a6 6 0 0 1 6 6h-2a4 4 0 0 0-8 0H4a6 6 0 0 1 6-6zm-1 6a1 1 0 1 1 2 0 1 1 0 0 1-2 0zm-5.46-1.1a8 8 0 0 1 12.92 0 1 1 0 1 1-1.68 1.1A6 6 0 0 0 4.78 9a1 1 0 0 1-1.24-.1zm13.92 1.1a1 1 0 1 1-1.68-1.1 8 8 0 0 1 1.68 1.1z" />
+                        </svg>
+                    </button>
+                </div>
+                {% if form.confirm_password.errors %}
+                    <div class="mt-2 text-sm text-red-600 bg-red-100 border-l-4 border-red-500 p-2 rounded">
+                        <ul>
+                            {% for error in form.confirm_password.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Color Selector -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Choose Color:</label>
+                <div class="flex items-center gap-3 mt-2">
+                    <input 
+                        id="color-input" 
+                        name="color" 
+                        type="color" 
+                        class="w-12 h-12 border-0 p-0 cursor-pointer rounded-lg shadow-sm" 
+                        value="{{ form.color.data or '#FFFFFF' }}" 
+                    />
+                    <input 
+                        id="color-hex" 
+                        name="color-hex" 
+                        type="text" 
+                        class="w-full p-2 rounded border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all text-gray-700 font-medium" 
+                        placeholder="Selected Color" 
+                        value="{{ form.color.data or '#FFFFFF' }}" 
+                        readonly 
+                    />
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-3 text-lg bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200">
+                Register
+            </button>
+        </form>
+    </div>
 </div>
 
 <script>
-    // Sync Color Selector with Hex Input
-    document.addEventListener('DOMContentLoaded', () => {
-        const colorInput = document.getElementById('color-input');
-        const colorHex = document.getElementById('color-hex');
+    function togglePassword(fieldId, iconId) {
+        const field = document.getElementById(fieldId);
+        const icon = document.getElementById(iconId);
 
-        colorInput.addEventListener('input', () => {
-            colorHex.value = colorInput.value;
-        });
-    });
+        if (field.type === "password") {
+            field.type = "text";
+            icon.innerHTML = `<path d="M4.707 3.293a1 1 0 0 1 1.414 0l10 10a1 1 0 0 1-1.414 1.414L4.707 4.707a1 1 0 0 1 0-1.414zM10 4a6 6 0 0 1 6 6h-2a4 4 0 0 0-8 0H4a6 6 0 0 1 6-6z" />`;
+        } else {
+            field.type = "password";
+            icon.innerHTML = `<path d="M10 4a6 6 0 0 1 6 6h-2a4 4 0 0 0-8 0H4a6 6 0 0 1 6-6z" />`;
+        }
+    }
 </script>
 {% endblock %}

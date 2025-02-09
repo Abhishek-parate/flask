@@ -38,3 +38,15 @@ class LoginForm(FlaskForm):
 class SelectColorForm(FlaskForm):
     color = StringField('Favorite Color (Hex Code)', validators=[DataRequired(), Length(min=3, max=7), Regexp(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$', message='Please enter a valid hex color code.')])
     submit = SubmitField('Submit')
+
+
+class ForgotPasswordForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    recovery_key = StringField('Recovery Key', validators=[DataRequired()])
+    submit = SubmitField('Verify')
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('New Password', validators=[DataRequired(), Length(min=6), password_strength])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match.')])
+    submit = SubmitField('Reset Password')
