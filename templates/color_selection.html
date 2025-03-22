@@ -1,12 +1,122 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-    <h2 class="text-2xl font-bold mb-6">Select Your Favorite Color</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="mb-4">{{ form.color.label }} {{ form.color(class="w-full border p-2 rounded") }}</div>
-        <button class="bg-green-500 text-white py-2 px-4 rounded w-full">Submit</button>
-    </form>
+<div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary-50 to-indigo-50 p-4">
+    <div class="bg-white rounded-xl shadow-custom max-w-md w-full overflow-hidden">
+        <!-- Header section -->
+        <div class="bg-gradient-to-r from-primary-600 to-indigo-600 p-6">
+            <h2 class="text-2xl font-bold text-white">Choose Your Style</h2>
+            <p class="text-primary-100 mt-1 text-sm">Select a color that represents you</p>
+        </div>
+        
+        <!-- Form section -->
+        <div class="p-6">
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                
+                <!-- Color picker with preview -->
+                <div class="space-y-3">
+                    <label for="color-input" class="block text-sm font-medium text-gray-700">Select Your Favorite Color</label>
+                    
+                    <!-- Color picker with preview -->
+                    <div class="flex flex-col space-y-3">
+                        <div class="flex items-center gap-3">
+                            {{ form.color(class="w-16 h-16 rounded-full cursor-pointer border-4 border-white shadow-sm p-0", id="color-input", onchange="updateColorPreview(this.value)") }}
+                            
+                            <div id="color-preview" class="flex-1 h-16 rounded-lg shadow-sm" style="background-color: {{ form.color.data or '#38bdf8' }};">
+                            </div>
+                        </div>
+                        
+                        <!-- Color name display -->
+                        <div class="bg-gray-50 rounded-lg p-3 text-center">
+                            <span id="color-name" class="font-medium text-gray-700">Sky Blue</span>
+                            <span id="color-hex" class="text-sm text-gray-500 ml-2">(#38bdf8)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Color presets -->
+                    <div class="mt-4">
+                        <p class="text-xs text-gray-500 mb-2">Suggested colors:</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" class="w-8 h-8 rounded-full bg-sky-400 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#38bdf8')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-blue-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#3b82f6')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-indigo-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#6366f1')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-purple-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#a855f7')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-pink-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#ec4899')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-red-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#ef4444')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-orange-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#f97316')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-amber-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#f59e0b')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-yellow-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#eab308')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-lime-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#84cc16')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-green-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#22c55e')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-emerald-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#10b981')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-teal-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#14b8a6')"></button>
+                            <button type="button" class="w-8 h-8 rounded-full bg-cyan-500 border-2 border-white shadow-sm hover:scale-110 transition-transform" onclick="setColor('#06b6d4')"></button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Submit button -->
+                <button type="submit" class="w-full group relative py-2.5 px-4 text-white bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 rounded-lg text-base font-medium shadow-sm hover:shadow-md transition-all duration-200">
+                    <span class="relative z-10 flex items-center justify-center gap-2">
+                        <i class="fas fa-check"></i>
+                        Save Color
+                    </span>
+                    <span class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+                </button>
+                
+                <!-- Back link -->
+                <div class="text-center text-sm text-gray-500 mt-4">
+                    <a href="#" class="text-primary-600 hover:text-primary-800 font-medium"><i class="fas fa-arrow-left mr-1"></i> Back to dashboard</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script>
+    // Color name mapping - add more as needed
+    const colorNames = {
+        '#38bdf8': 'Sky Blue',
+        '#3b82f6': 'Blue',
+        '#6366f1': 'Indigo',
+        '#a855f7': 'Purple',
+        '#ec4899': 'Pink',
+        '#ef4444': 'Red',
+        '#f97316': 'Orange',
+        '#f59e0b': 'Amber',
+        '#eab308': 'Yellow',
+        '#84cc16': 'Lime',
+        '#22c55e': 'Green',
+        '#10b981': 'Emerald',
+        '#14b8a6': 'Teal',
+        '#06b6d4': 'Cyan'
+    };
+    
+    function updateColorPreview(value) {
+        // Update the preview background
+        document.getElementById('color-preview').style.backgroundColor = value;
+        
+        // Update text display
+        document.getElementById('color-hex').textContent = `(${value.toUpperCase()})`;
+        
+        // Update color name if in our mapping, or set a generic name
+        const colorName = colorNames[value.toLowerCase()] || 'Custom Color';
+        document.getElementById('color-name').textContent = colorName;
+    }
+    
+    function setColor(hexColor) {
+        // Update the color input
+        const colorInput = document.getElementById('color-input');
+        colorInput.value = hexColor;
+        
+        // Update the preview
+        updateColorPreview(hexColor);
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const colorInput = document.getElementById('color-input');
+        updateColorPreview(colorInput.value);
+    });
+</script>
 {% endblock %}
-select_color.html

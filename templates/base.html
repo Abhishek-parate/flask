@@ -1,17 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: '#f0f9ff',
+                100: '#e0f2fe',
+                200: '#bae6fd',
+                300: '#7dd3fc',
+                400: '#38bdf8',
+                500: '#0ea5e9',
+                600: '#0284c7',
+                700: '#0369a1',
+                800: '#075985',
+                900: '#0c4a6e',
+              },
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            boxShadow: {
+              'custom': '0 4px 20px rgba(0, 0, 0, 0.08)',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+      
+      /* Toast notification styling */
+      .toast {
+        animation: slideIn 0.3s ease-out forwards, fadeOut 0.5s ease-in 3s forwards;
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      
+      @keyframes slideIn {
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+    </style>
     <title>Flask Auth System</title>
   </head>
-  <body class="bg-gray-100 h-screen flex justify-center items-center">
-    {% block content %} {% with messages =
-    get_flashed_messages(with_categories=true) %} {% if messages %}
-    <ul>
-      {% for category, message in messages %}
-      <li class="alert alert-{{ category }}">{{ message }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %} {% endwith %} {% endblock %}
+  <body class="bg-gray-50 min-h-screen font-sans antialiased text-gray-800">
+    <!-- Toast Notifications Container -->
+    <div id="notifications-container" class="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-md">
+      {% with messages = get_flashed_messages(with_categories=true) %} 
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="toast bg-white border-l-4 rounded-lg shadow-custom p-4 flex items-start {% if category == 'success' %}border-green-500{% elif category == 'error' %}border-red-500{% elif category == 'warning' %}border-yellow-500{% else %}border-primary-500{% endif %}">
+              <div class="flex-shrink-0 mr-3">
+                {% if category == 'success' %}
+                  <i class="fas fa-check-circle text-green-500 text-lg"></i>
+                {% elif category == 'error' %}
+                  <i class="fas fa-exclamation-circle text-red-500 text-lg"></i>
+                {% elif category == 'warning' %}
+                  <i class="fas fa-exclamation-triangle text-yellow-500 text-lg"></i>
+                {% else %}
+                  <i class="fas fa-info-circle text-primary-500 text-lg"></i>
+                {% endif %}
+              </div>
+              <div class="flex-grow">
+                <p class="text-sm">{{ message }}</p>
+              </div>
+              <button onclick="this.parentElement.remove()" class="ml-4 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %} 
+      {% endwith %}
+    </div>
+    
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+    
+    <script>
+      // Auto-dismiss notifications after 5 seconds
+      setTimeout(() => {
+        const toasts = document.querySelectorAll('.toast');
+        toasts.forEach(toast => {
+          setTimeout(() => {
+            toast.remove();
+          }, 5000);
+        });
+      }, 0);
+    </script>
   </body>
 </html>

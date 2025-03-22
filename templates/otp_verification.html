@@ -1,11 +1,121 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-    <h2 class="text-2xl font-bold mb-6">Enter OTP</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="mb-4">{{ form.otp.label }} {{ form.otp(class="w-full border p-2 rounded") }}</div>
-        <button class="bg-blue-500 text-white py-2 px-4 rounded w-full">Verify OTP</button>
-    </form>
+<div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary-50 to-indigo-50 p-4">
+    <div class="w-full max-w-md">
+        <!-- Card with refined shadow and border -->
+        <div class="bg-white rounded-xl shadow-custom overflow-hidden border border-gray-100">
+            <!-- Header with gradient background -->
+            <div class="bg-gradient-to-r from-primary-600 to-indigo-600 p-6">
+                <div class="flex justify-center mb-3">
+                    <div class="rounded-full bg-white/20 p-3">
+                        <i class="fas fa-key text-white text-2xl"></i>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-bold text-white text-center">One-Time Password</h2>
+                <p class="text-primary-100 mt-1 text-sm text-center">Enter the verification code</p>
+            </div>
+
+            <!-- Form content -->
+            <div class="p-6">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="mb-4 {% if category == 'success' %}bg-green-50 border-green-500 text-green-700{% else %}bg-red-50 border-red-500 text-red-700{% endif %} border-l-4 p-3 rounded-lg flex items-start">
+                                <div class="flex-shrink-0 mr-2">
+                                    <i class="fas {% if category == 'success' %}fa-check-circle text-green-500{% else %}fa-exclamation-circle text-red-500{% endif %} mt-0.5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm">{{ message }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST" class="space-y-5">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- OTP input with improved styling -->
+                    <div>
+                        <label for="otp" class="block text-sm font-medium text-gray-700 mb-1">{{ form.otp.label }}</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-shield-alt text-gray-400 text-sm"></i>
+                            </div>
+                            {{ form.otp(class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm bg-gray-50 tracking-widest font-mono text-center letter-spacing-2", placeholder="• • • • • •", autocomplete="one-time-code", inputmode="numeric") }}
+                        </div>
+                        
+                        <p class="mt-2 text-xs text-gray-500 text-center">
+                            Enter the verification code sent to your device
+                        </p>
+                    </div>
+                    
+                    <!-- Submit button with animation -->
+                    <div>
+                        <button type="submit" class="w-full group relative py-2.5 px-4 text-white bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 rounded-lg text-base font-medium shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+                            <span class="relative z-10 flex items-center justify-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                Verify OTP
+                            </span>
+                            <span class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Timer and resend link -->
+                <div class="mt-6">
+                    <div class="flex items-center justify-between">
+                        <div class="text-xs text-gray-500 flex items-center">
+                            <i class="fas fa-clock mr-1.5"></i>
+                            Code expires in: <span id="timer" class="font-medium ml-1">04:59</span>
+                        </div>
+                        <button type="button" class="text-xs text-primary-600 hover:text-primary-800 font-medium">
+                            Resend code
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Cancel option -->
+                <div class="mt-6 text-center">
+                    <a href="#" class="text-sm text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-arrow-left mr-1"></i>
+                        Back to login
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Need help -->
+        <div class="mt-4 text-center text-xs text-gray-500">
+            <p>Having trouble? <a href="#" class="text-primary-600 hover:text-primary-700">Contact Support</a></p>
+        </div>
+    </div>
 </div>
+
+<script>
+    // Timer functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        let timeLeft = 5 * 60; // 5 minutes in seconds
+        const timerElement = document.getElementById('timer');
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerElement.textContent = '00:00';
+            } else {
+                timeLeft--;
+            }
+        }
+        
+        // Initialize timer
+        updateTimer();
+        const timerInterval = setInterval(updateTimer, 1000);
+    });
+</script>
 {% endblock %}
